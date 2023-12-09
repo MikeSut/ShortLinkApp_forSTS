@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("app_shortlink.DAL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98ca42490f6624f2c1dfcab3689657180c4d85b1")]
 [assembly: System.Reflection.AssemblyProductAttribute("app_shortlink.DAL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("app_shortlink.DAL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

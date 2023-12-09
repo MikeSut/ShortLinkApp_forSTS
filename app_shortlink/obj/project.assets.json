@@ -1072,13 +1072,25 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Relational": "8.0.0"
+          "Microsoft.EntityFrameworkCore.Relational": "8.0.0",
+          "Microsoft.EntityFrameworkCore.SqlServer": "8.0.0",
+          "app_shortlink.Domain": "1.0.0"
         },
         "compile": {
           "bin/placeholder/app_shortlink.DAL.dll": {}
         },
         "runtime": {
           "bin/placeholder/app_shortlink.DAL.dll": {}
+        }
+      },
+      "app_shortlink.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/app_shortlink.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/app_shortlink.Domain.dll": {}
         }
       }
     }
@@ -3117,6 +3129,11 @@
       "type": "project",
       "path": "../app_shortlink.DAL/app_shortlink.DAL.csproj",
       "msbuildProject": "../app_shortlink.DAL/app_shortlink.DAL.csproj"
+    },
+    "app_shortlink.Domain/1.0.0": {
+      "type": "project",
+      "path": "../app_shortlink.Domain/app_shortlink.Domain.csproj",
+      "msbuildProject": "../app_shortlink.Domain/app_shortlink.Domain.csproj"
     }
   },
   "projectFileDependencyGroups": {

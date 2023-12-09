@@ -1,5 +1,11 @@
 using app_shortlink.DAL;
 using Microsoft.EntityFrameworkCore;
+Console.WriteLine();
+using (var db = new ApplicationDbContext())
+{
+    var connect = db.Users;
+}
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,10 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer("");
-});
+// var connectionString = builder.Configuration["DefaultConnection"];
+// builder.Services.AddDbContext<ApplicationDbContext>(options =>
+// {
+//     options.LogTo(Console.WriteLine);
+//     options.UseSqlServer(connectionString);
+// });
 
 var app = builder.Build();
 

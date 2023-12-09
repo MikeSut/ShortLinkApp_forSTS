@@ -1,0 +1,16 @@
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/bin/Debug/net8.0/app_shortlink.DAL.deps.json
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/bin/Debug/net8.0/app_shortlink.DAL.dll
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/bin/Debug/net8.0/app_shortlink.DAL.pdb
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.csproj.AssemblyReference.cache
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.GeneratedMSBuildEditorConfig.editorconfig
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.AssemblyInfoInputs.cache
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.AssemblyInfo.cs
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.csproj.CoreCompileInputs.cache
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.sourcelink.json
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.dll
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/refint/app_shortlink.DAL.dll
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.pdb
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/ref/app_shortlink.DAL.dll
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/bin/Debug/net8.0/app_shortlink.Domain.dll
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/bin/Debug/net8.0/app_shortlink.Domain.pdb
+/home/mihail/RiderProjects/app_shortlink/app_shortlink.DAL/obj/Debug/net8.0/app_shortlink.DAL.csproj.CopyComplete
