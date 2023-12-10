@@ -4,33 +4,28 @@ using app_shortlink.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace app_shortlink.DAL
+namespace app_shortlink.DAL;
+
+public class ApplicationDbContext : DbContext
 {
-    public sealed class ApplicationDbContext : DbContext //ApplicationDbContext содержит основные компоненты для взаимодействия с БД
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        public ApplicationDbContext()
-        {
-            Database.EnsureCreated(); //метод для создания БД
-        }
-        
-        public DbSet<User> Users { get; set; }
+        Database.EnsureCreated();
+    }
+    
+    public DbSet<User> Users { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) //Метод, отвечающий за настройку кофигурации ApplicationDbContext
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>(builder =>
         {
-            // optionsBuilder.LogTo(Console.WriteLine);
-            optionsBuilder.UseSqlServer("Server=localhost;Database=shortlinkdb;Trusted_Connection=True");
-        }
+            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+            builder.Property(x => x.Username).IsRequired().HasMaxLength(100);
+            builder.Property(x => x.Password).IsRequired();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<User>(builder =>
-            {
-                builder.Property(x => x.Id).ValueGeneratedOnAdd();
-                builder.Property(x => x.Username).HasMaxLength(100);
-                builder.Property(x => x.Password).HasMaxLength(15);
-            });
 
-        }
+            
+        });
     }
 }
 

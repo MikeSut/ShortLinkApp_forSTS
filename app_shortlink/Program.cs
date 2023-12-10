@@ -1,13 +1,13 @@
 using app_shortlink.DAL;
 using Microsoft.EntityFrameworkCore;
-Console.WriteLine();
-using (var db = new ApplicationDbContext())
-{
-    var connect = db.Users;
-}
 
-
+    
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration["ConnectionStrings:PSQL"];
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
