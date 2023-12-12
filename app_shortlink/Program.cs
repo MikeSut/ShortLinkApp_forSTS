@@ -1,26 +1,27 @@
 using app_shortlink.DAL;
 using Microsoft.EntityFrameworkCore;
 
-    
+Console.WriteLine("hi");   
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration["ConnectionStrings:PSQL"];
+string connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(connectionString);
+    options.UseNpgsql(connection);
 });
 
-// Add services to the container.
+
+
+
+
+//ar  Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// var connectionString = builder.Configuration["DefaultConnection"];
-// builder.Services.AddDbContext<ApplicationDbContext>(options =>
-// {
-//     options.LogTo(Console.WriteLine);
-//     options.UseSqlServer(connectionString);
-// });
+
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -50,6 +51,8 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .WithOpenApi();
+
+// app.Services.Resolve<ApplicationDbContext.Database.EnsureCreated()>
 
 app.Run();
 
