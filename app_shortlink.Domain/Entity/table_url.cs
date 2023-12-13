@@ -1,6 +1,6 @@
 namespace app_shortlink.Domain.Entity;
 
-public class table_urls
+public class table_url
 {
     public int urls_id { get; set; }
     

@@ -2,31 +2,33 @@
 
 using app_shortlink.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace app_shortlink.DAL;
 
 public class ApplicationDbContext : DbContext
 {
-
-    public DbSet<User> Users { get; set; } = null!;
-    public DbSet<table_urls> table_urls { get; set; }
     
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=urlsdb;Username=postgres;Password=Sutulov12misha");
-
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        Database.EnsureCreated();
+        // Database.EnsureCreated();
     }
+
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<table_url> Table_urls { get; set; } = null!;
+
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=urlsdb;Username=mike;Password=mike");
 
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<table_urls>().HasData(
-            new table_urls {urls_id = 1, full_url = "aa", short_url = "aa", click = 1, DateCreate = DateTime.Today});
-        
+        modelBuilder.Entity<User>().Property(x => x.Id).ValueGeneratedOnAdd();
+        modelBuilder.Entity<User>().Property(x => x.Username).HasMaxLength(100);
+        modelBuilder.Entity<table_url>().Property(x => x.urls_id).ValueGeneratedOnAdd();
     }
+
+    
+
 }
 
