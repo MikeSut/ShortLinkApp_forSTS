@@ -25,4 +25,8 @@
       <ProjectReference Include="..\app_shortlink.Domain\app_shortlink.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Repositories\" />
+    </ItemGroup>
+
 </Project>
