@@ -1,10 +1,12 @@
 using app_shortlink.DAL;
+using app_shortlink.DAL.Repository;
+using app_shortlink.DAL.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-var connection = new ConfigurationBuilder();
-connection.SetBasePath(Directory.GetCurrentDirectory());
-connection.AddJsonFile("appsettings.json");
-var config = connection.Build();
+var build = new ConfigurationBuilder();
+build.SetBasePath(Directory.GetCurrentDirectory());
+build.AddJsonFile("appsettings.json");
+var config = build.Build();
 var connectionString = config.GetConnectionString("DefaultConnection");
 var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 var options = optionsBuilder.UseNpgsql(connectionString).Options;
@@ -14,6 +16,8 @@ using (ApplicationDbContext db = new ApplicationDbContext(options))
 }
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

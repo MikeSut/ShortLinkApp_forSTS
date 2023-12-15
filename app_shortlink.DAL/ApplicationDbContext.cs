@@ -34,7 +34,7 @@ public class ApplicationDbContext : DbContext
                 Id = 1,
                 Name = "AdminM",
                 Password = HashPasswordHelper.HashPassword("123456"),
-                Role = Role.Admin,
+                Role = "Role.Admin",
             });
             
             
