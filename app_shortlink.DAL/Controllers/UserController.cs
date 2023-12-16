@@ -1,48 +1,70 @@
+using System.Net;
 using app_shortlink.DAL.Repository.IRepository;
 using app_shortlink.Domain.Dto;
-using Microsoft.AspNetCore.Authorization;
+using app_shortlink.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace app_shortlink.DAL.Controllers
 {
+    
+    [Route("api/userAuth")]
     [ApiController]
-    [Route("[controller]")]
     
     public class UserController: ControllerBase
     {
         private readonly IUserRepository _userRepo;
+        protected APIResponse _response;
+
+        public UserController(IUserRepository userRepo)
+        {
+            _userRepo = userRepo;
+            this._response = new APIResponse();
+        }
         
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
         {
-            var response = await _userRepo.Login(model);
-            if (response.User == null || string.IsNullOrEmpty(response.Token))
-                return BadRequest(new { message = "Username or password is incorrect" });
-
-            return Ok(response);
+            var loginResponse = await _userRepo.Login(model);
+            if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSucces = false;
+                _response.ErrorMessages.Add("Username or password is incorrect");
+                return BadRequest(_response);
+            }
+            _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.IsSucces = true;
+            _response.ErrorMessages.Add("Username or password is incorrect");
+            return Ok(_response);
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
         {
-            var response = await _userRepo.Register(model);
-
-            if (response == null)
+            bool ifUserNameUnique = _userRepo.IsUniqueUser(model.UserName);
+            if (!ifUserNameUnique)
             {
-                return BadRequest(new { message = "Didn't register!" });
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSucces = false;
+                _response.ErrorMessages.Add("Username already exists");
+                return BadRequest(_response);
             }
 
-            return Ok(response);
+            var user = await _userRepo.Register(model);
+            if (user == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSucces = false;
+                _response.ErrorMessages.Add("Error while register");
+                return BadRequest(_response);
+            }
+
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSucces = true;
+            return Ok(_response);
         }
 
-        [Authorize]
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var users = _userRepo.GetAll();
-            return Ok(users);
-        }
 
     }
     

@@ -11,5 +11,4 @@ public interface IUserRepository
     
     Task<User> Register(RegistrationRequestDto registrationRequestDto);
 
-    IEnumerable<User> GetAll();
 }

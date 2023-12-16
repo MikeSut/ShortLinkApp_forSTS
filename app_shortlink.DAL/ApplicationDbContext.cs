@@ -15,8 +15,6 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; } = null!;
-
-    public object TableUrls { get; set; }
     // public DbSet<TableUrl> TableUrls { get; set; } = null!;
 
     
@@ -29,13 +27,13 @@ public class ApplicationDbContext : DbContext
         
         modelBuilder.Entity<User>(builder =>
         {
-            builder.HasData(new User
-            {
-                Id = 1,
-                Name = "AdminM",
-                Password = HashPasswordHelper.HashPassword("123456"),
-                Role = "Role.Admin",
-            });
+            // builder.HasData(new User
+            // {
+            //     Id = 1,
+            //     Name = "AdminM",
+            //     Password = HashPasswordHelper.HashPassword("123456"),
+            //     Role = "Role.Admin",
+            // });
             
             
             

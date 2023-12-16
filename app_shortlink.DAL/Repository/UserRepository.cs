@@ -5,7 +5,6 @@ using app_shortlink.DAL.Repository.IRepository;
 using app_shortlink.Domain.Dto;
 using app_shortlink.Domain.Entity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace app_shortlink.DAL.Repository;
