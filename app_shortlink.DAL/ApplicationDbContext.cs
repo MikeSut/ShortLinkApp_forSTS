@@ -14,34 +14,35 @@ public class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<User> Users { get; set; }
     // public DbSet<TableUrl> TableUrls { get; set; } = null!;
 
     
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=urlsdb;Username=mike;Password=mike");
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //     => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=urlsdb;Username=mike;Password=mike");
 
     
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        
-        modelBuilder.Entity<User>(builder =>
-        {
-            // builder.HasData(new User
-            // {
-            //     Id = 1,
-            //     Name = "AdminM",
-            //     Password = HashPasswordHelper.HashPassword("123456"),
-            //     Role = "Role.Admin",
-            // });
-            
-            
-            
-            builder.ToTable("Users").HasKey(x => x.Id);
-            builder.Property(x => x.Id).ValueGeneratedOnAdd();
-            builder.Property(x => x.Name).HasMaxLength(100).HasColumnName("Username").IsRequired();
-            builder.Property(x => x.Password).HasMaxLength(100).IsRequired();
-        });
+    // protected override void OnModelCreating(ModelBuilder modelBuilder)
+    // {
+    //     
+    //     modelBuilder.Entity<User>(builder =>
+    //     {
+    //         builder.HasData(new User
+    //         {
+    //             Name = "Mihail",
+    //             UserName = "mike",
+    //             Password = "123456",
+    //             Role = "Admin",
+    //         });
+    //         
+        //     
+        //     
+        //     
+            // builder.Property(x => x.Id).ValueGeneratedOnAdd();
+            // builder.Property(x => x.Name).HasMaxLength(100);
+            // builder.Property(x => x.UserName).HasMaxLength(100).IsRequired();
+            // builder.Property(x => x.Password).HasMaxLength(100);
+        // });
         
         // modelBuilder.Entity<TableUrl>(builder =>
         // {
@@ -50,7 +51,7 @@ public class ApplicationDbContext : DbContext
         //     builder.Property(x => x.Clicks);
         //    
         // });
-    }
+    // }
 
     
 

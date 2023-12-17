@@ -1,10 +1,13 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using app_shortlink.Domain.Enum;
 
 namespace app_shortlink.Domain.Entity
 {
-    public class User: BaseEntity
+    public class User
     {
+        // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         public string Name { get; set; }
         
         public string UserName { get; set; }

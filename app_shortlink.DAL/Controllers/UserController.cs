@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace app_shortlink.DAL.Controllers
 {
-    
-    [Route("api/userAuth")]
     [ApiController]
+    [Route("api/userAuth")]
+    
     
     public class UserController: ControllerBase
     {
