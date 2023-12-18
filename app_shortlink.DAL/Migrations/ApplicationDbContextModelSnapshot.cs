@@ -21,6 +21,27 @@ namespace app_shortlink.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("app_shortlink.Domain.Entity.TableUrl", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FullUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShortUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TableUrls");
+                });
+
             modelBuilder.Entity("app_shortlink.Domain.Entity.User", b =>
                 {
                     b.Property<int>("Id")

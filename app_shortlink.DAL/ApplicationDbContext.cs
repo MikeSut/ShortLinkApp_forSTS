@@ -15,29 +15,11 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
-    // public DbSet<TableUrl> TableUrls { get; set; } = null!;
-
-    
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //     => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=urlsdb;Username=mike;Password=mike");
+    public DbSet<TableUrl> TableUrls { get; set; }
 
     
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
-    //     
-    //     modelBuilder.Entity<User>(builder =>
-    //     {
-    //         builder.HasData(new User
-    //         {
-    //             Name = "Mihail",
-    //             UserName = "mike",
-    //             Password = "123456",
-    //             Role = "Admin",
-    //         });
-    //         
-        //     
-        //     
-        //     
             // builder.Property(x => x.Id).ValueGeneratedOnAdd();
             // builder.Property(x => x.Name).HasMaxLength(100);
             // builder.Property(x => x.UserName).HasMaxLength(100).IsRequired();

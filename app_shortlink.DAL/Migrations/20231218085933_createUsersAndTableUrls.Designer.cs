@@ -11,8 +11,8 @@ using app_shortlink.DAL;
 namespace app_shortlink.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231217071618_addUsers")]
-    partial class addUsers
+    [Migration("20231218085933_createUsersAndTableUrls")]
+    partial class createUsersAndTableUrls
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,27 @@ namespace app_shortlink.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("app_shortlink.Domain.Entity.TableUrl", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FullUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShortUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TableUrls");
+                });
 
             modelBuilder.Entity("app_shortlink.Domain.Entity.User", b =>
                 {
