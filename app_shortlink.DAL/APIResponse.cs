@@ -1,9 +1,10 @@
 using System.Net;
 
-namespace app_shortlink.Domain.Entity;
+namespace app_shortlink.DAL;
 
 public class APIResponse
 {
+
     public APIResponse()
     {
         ErrorMessages = new List<string>();

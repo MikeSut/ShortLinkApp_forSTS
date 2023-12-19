@@ -35,14 +35,16 @@ public class UserRepository: IUserRepository
     {
         var user = _db.Users.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower()
                                                  && u.Password == loginRequestDto.Password);
+        
         if (user == null)
+            
         {
             return new LoginResponseDto()
             {
                 Token = "", 
                 User = null
             };
-
+        
         }
         //если пользователь был найден генерируем JWT Token
 
@@ -56,7 +58,6 @@ public class UserRepository: IUserRepository
                 new Claim(ClaimTypes.Name, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role)
             }),
-            Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);

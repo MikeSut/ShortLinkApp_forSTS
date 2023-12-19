@@ -1,7 +1,6 @@
 using System.Net;
 using app_shortlink.DAL.Repository.IRepository;
 using app_shortlink.Domain.Dto;
-using app_shortlink.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace app_shortlink.DAL.Controllers
@@ -18,7 +17,7 @@ namespace app_shortlink.DAL.Controllers
         public UserController(IUserRepository userRepo)
         {
             _userRepo = userRepo;
-            this._response = new APIResponse();
+            this._response = new();
         }
         
 
@@ -40,7 +39,7 @@ namespace app_shortlink.DAL.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
+        public async Task<IActionResult>  Register([FromBody] RegistrationRequestDto model)
         {
             bool ifUserNameUnique = _userRepo.IsUniqueUser(model.UserName);
             if (!ifUserNameUnique)
