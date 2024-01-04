@@ -1,4 +1,5 @@
-﻿using ShortLinks.Domain.Entity;
+﻿using Microsoft.AspNetCore.Authorization;
+using ShortLinks.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using ShortLinks.Application;
 using ShortLinks.Presentation.Api.Dto;
@@ -8,7 +9,7 @@ namespace ShortLinks.Presentation.Api;
 public static class ShortLinksRoutes {
     public static void MapShortLinksRoutes(this WebApplication application) {
        
-        application.MapPost("/shortlink", async (UrlRequestDto url, ApplicationDbContext db, HttpContext ctx) =>
+        application.MapPost("/shortlink", [Authorize] async (UrlRequestDto url, ApplicationDbContext db, HttpContext ctx) =>
         {
             
             //Проверяем входной url
