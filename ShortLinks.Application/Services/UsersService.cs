@@ -66,7 +66,7 @@ public class UsersService : IUsersService {
 
         var tokenDescriptor = new SecurityTokenDescriptor {
             Subject = new ClaimsIdentity(new[] {
-                new Claim(ClaimTypes.Name, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             }),
             Expires = DateTime.UtcNow.AddHours(5),
             SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

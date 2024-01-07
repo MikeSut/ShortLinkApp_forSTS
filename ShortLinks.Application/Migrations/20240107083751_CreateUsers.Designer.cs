@@ -11,8 +11,8 @@ using ShortLinks.Application;
 namespace ShortLinks.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231221033419_delRole")]
-    partial class delRole
+    [Migration("20240107083751_CreateUsers")]
+    partial class CreateUsers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,27 +23,6 @@ namespace ShortLinks.Application.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("ShortLinks.Domain.Entity.TableUrl", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FullUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShortUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TableUrls");
-                });
 
             modelBuilder.Entity("ShortLinks.Domain.Entity.User", b =>
                 {

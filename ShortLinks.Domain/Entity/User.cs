@@ -9,4 +9,6 @@ public class User {
 
     public string Password { get; set; } = null!;
 
+    public List<Url> Urls { get; set; } = new();
+
 }
