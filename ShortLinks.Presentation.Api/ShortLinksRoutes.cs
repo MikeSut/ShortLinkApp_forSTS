@@ -25,9 +25,11 @@ public static class ShortLinksRoutes {
             if (strUrl != null)
             {
                 var respUrl = $"{ctx.Request.Scheme}://{ctx.Request.Host}/{strUrl.ShortUrl}";
+                var amountClicks = db.IpClients.Where(x => x.UrlId == strUrl.Id);
                 return Results.Ok(new UrlResponseDto()
                 {
-                    ShortUrl = respUrl
+                    ShortUrl = respUrl,
+                    AmountClicks = amountClicks.Count()
                 });
             }
             
@@ -60,6 +62,7 @@ public static class ShortLinksRoutes {
             return Results.Ok(new UrlResponseDto()
             {
                 ShortUrl = result,
+                
                 
             });
         });

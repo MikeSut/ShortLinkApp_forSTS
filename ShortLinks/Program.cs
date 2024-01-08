@@ -11,6 +11,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(option => {
     option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "localhost";
+    options.InstanceName = "local";
+});
+
 builder.Services.AddOptions<CredentialsOptions>()
     .BindConfiguration("Credentials");
 builder.Services.AddEndpointsApiExplorer();
