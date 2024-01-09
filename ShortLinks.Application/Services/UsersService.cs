@@ -55,31 +55,8 @@ public class UsersService : IUsersService {
     public bool IsUsernameTaken(string username) {
         return _db.Users.Any(x => x.UserName == username);
     }
-
     
-    // public async Task<User> Anonimous(UserInfo login)
-    // {
-    //     var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName == "anonimous");
-    //     
-    //     var tokenHandler = new JwtSecurityTokenHandler();
-    //     var key = Encoding.ASCII.GetBytes(secretKey);
-    //
-    //     var tokenDescriptor = new SecurityTokenDescriptor {
-    //         Subject = new ClaimsIdentity(new[] {
-    //             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-    //         }),
-    //         Expires = DateTime.UtcNow.AddHours(5),
-    //         SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    //     };
-    //
-    //     var token = tokenHandler.CreateToken(tokenDescriptor);
-    //     return new Result<Login>{
-    //         IsSuccess = true,
-    //         Value = new Login { Token = tokenHandler.WriteToken(token), User = user }
-    //     };
-    //     
-    // }
-    
+  
     public async Task<Result<Login>> LoginAsync(UserInfo login, CancellationToken c) {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.UserName.ToLower() == login.Username.ToLower(), c);
         

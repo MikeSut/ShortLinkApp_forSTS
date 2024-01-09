@@ -7,6 +7,10 @@ public class Url
     public int UserId { get; set; }
     public User? User { get; set; }
     
+    public DateTime CreationDate { get; set; }
+    public DateTime ExpirationDate { get; set; }
+
+    
     public string ShortUrl { get; set; } = "";
 
     public string FullUrl { get; set; } = "";

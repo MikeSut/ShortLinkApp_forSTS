@@ -17,7 +17,7 @@ public static class ShortLinksRoutes {
         {
             int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var AnonUser = db.Users.First(x => x.UserName == "anonimous");
-            Console.WriteLine(AnonUser.Id);
+            
 
             //Проверяем входной url
             if (!Uri.TryCreate(url.FullUrl, UriKind.Absolute, out var inputUrl))
@@ -47,12 +47,16 @@ public static class ShortLinksRoutes {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@az";
             var randomStr = new string(Enumerable.Repeat(chars, 8)
                 .Select(x => x[random.Next(x.Length)]).ToArray());
-            
+            var creationDate = DateTime.UtcNow.Date;
+
+            var expirationDate = (currentUserId == AnonUser.Id) ? creationDate.AddDays(4) : creationDate.AddDays(29);
             var sUrl = new Url()
             {
                 FullUrl = url.FullUrl,
                 ShortUrl = randomStr,
-                UserId = currentUserId
+                UserId = currentUserId,
+                CreationDate = creationDate,
+                ExpirationDate = expirationDate
             };
             db.Urls.Add(sUrl);
             await db.SaveChangesAsync();
@@ -64,13 +68,14 @@ public static class ShortLinksRoutes {
             {
                 return Results.Ok(new AnonUrlResponseDto()
                 {
-                    Message = $"Ссылка активна до {DateTime.Today.AddDays(4)}",
+                    Message = $"Ссылка активна до {expirationDate}",
                     ShortUrl = result
                 });
             }
             
             return Results.Ok(new UrlResponseDto()
             {
+                Message = $"Ссылка активна до {expirationDate}",
                 ShortUrl = result
             });
         });
