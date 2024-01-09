@@ -1,12 +1,25 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using ShortLinks.Application;
 using ShortLinks.Application.Services;
 using ShortLinks.Presentation.Api.Dto;
 
 namespace ShortLinks.Presentation.Api;
 
 public static class UsersRoutes {
-    public static void MapUsersRoutes(this WebApplication application) {
+    public static void MapUsersRoutes(this WebApplication application)
+    {
+
+        application.MapGet("anonimous", async (ApplicationDbContext db, IUsersService service, CancellationToken c) =>
+        {
+            var user = db.Users.FirstOrDefault(x => x.UserName == "anonimous");
+            var loginResponse = await service.LoginAsync(
+                new UserInfo { Password = user.Password, Username = user.UserName, }, c);
+            
+            return loginResponse switch {
+                { Value: var r } => Results.Ok(new { Token = r.Token })
+            };
+        });
         
         
         application.MapPost("register",  async (UserRegistration userRegistration, IUsersService service) =>
