@@ -9,10 +9,9 @@ public class Url
     
     public DateTime CreationDate { get; set; }
     public DateTime ExpirationDate { get; set; }
-
-    
     public string ShortUrl { get; set; } = "";
-
+    public int LifeTimeLink { get; set; } = 5;
+    public string Permanent { get; set; } = "No";
     public string FullUrl { get; set; } = "";
 
     

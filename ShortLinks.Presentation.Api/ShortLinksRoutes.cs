@@ -12,6 +12,10 @@ namespace ShortLinks.Presentation.Api;
 public class UrlRequestDto()
 {
     public string FullUrl { get; set; } = "";
+
+    public int LifeTimeLink { get; set; } = 5;
+
+    public string Permanent { get; set; } = "";
 }
 
 public static class ShortLinksRoutes {
@@ -57,14 +61,17 @@ public static class ShortLinksRoutes {
                 .Select(x => x[random.Next(x.Length)]).ToArray());
             var creationDate = DateTime.UtcNow.Date;
 
-            var expirationDate = (currentUserId == AnonUser.Id) ? creationDate.AddDays(4) : creationDate.AddDays(29);
+            var lifeTime = (currentUserId == AnonUser.Id) ? 4 : ((url.LifeTimeLink != null) ? url.LifeTimeLink : 29);
+
+            var expirationDate = creationDate.AddDays(lifeTime);
             var sUrl = new Url()
             {
                 FullUrl = url.FullUrl,
                 ShortUrl = randomStr,
                 UserId = currentUserId,
                 CreationDate = creationDate,
-                ExpirationDate = expirationDate
+                ExpirationDate = expirationDate,
+                LifeTimeLink = lifeTime
             };
             db.Urls.Add(sUrl);
             await db.SaveChangesAsync();
