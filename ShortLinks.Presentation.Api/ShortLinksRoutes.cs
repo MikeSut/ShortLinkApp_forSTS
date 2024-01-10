@@ -9,16 +9,24 @@ using ShortLinks.Presentation.Api.Dto;
 
 namespace ShortLinks.Presentation.Api;
 
+public class UrlRequestDto()
+{
+    public string FullUrl { get; set; } = "";
+}
+
 public static class ShortLinksRoutes {
     
+   
+    
     public static void MapShortLinksRoutes(this WebApplication application) {
-       
+        
         application.MapPost("/shortlink", [Authorize] async (UrlRequestDto url, ApplicationDbContext db, HttpContext ctx) =>
         {
-            int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var AnonUser = db.Users.First(x => x.UserName == "anonimous");
             
+            int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var AnonUser = db.Users.First(x => x.UserName == "anonymous");
 
+        
             //Проверяем входной url
             if (!Uri.TryCreate(url.FullUrl, UriKind.Absolute, out var inputUrl))
                 return Results.BadRequest("Был предоставлен неверный Url-адрес");

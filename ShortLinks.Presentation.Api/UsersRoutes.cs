@@ -10,9 +10,9 @@ public static class UsersRoutes {
     public static void MapUsersRoutes(this WebApplication application)
     {
 
-        application.MapGet("anonimous", async (ApplicationDbContext db, IUsersService service, CancellationToken c) =>
+        application.MapGet("anonymous", async (ApplicationDbContext db, IUsersService service, CancellationToken c) =>
         {
-            var user = db.Users.FirstOrDefault(x => x.UserName == "anonimous");
+            var user = db.Users.FirstOrDefault(x => x.UserName == "anonymous");
             var loginResponse = await service.LoginAsync(
                 new UserInfo { Password = user.Password, Username = user.UserName, }, c);
             

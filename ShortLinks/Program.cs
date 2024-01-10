@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http.HttpResults;
 using ShortLinks.Application;
 using Microsoft.EntityFrameworkCore;
 using ShortLinks.Application.Services;
@@ -39,6 +41,9 @@ app.MapShortLinksRoutes();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+
 app.UseHttpsRedirection();
 
 
