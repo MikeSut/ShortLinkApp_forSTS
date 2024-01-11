@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,11 +12,11 @@ namespace ShortLinks.Presentation.Api;
 
 public class UrlRequestDto()
 {
-    public string FullUrl { get; set; } = "";
+    public string FullUrl { get; set; }
 
-    public int LifeTimeLink { get; set; } = 5;
+    public int LifeTimeLink { get; set; }
 
-    public string Permanent { get; set; } = "";
+    public string Permanent { get; set; }
 }
 
 public static class ShortLinksRoutes {
@@ -26,14 +27,12 @@ public static class ShortLinksRoutes {
         
         application.MapPost("/shortlink", [Authorize] async (UrlRequestDto url, ApplicationDbContext db, HttpContext ctx) =>
         {
-            
-            int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var AnonUser = db.Users.First(x => x.UserName == "anonymous");
-
-        
             //Проверяем входной url
             if (!Uri.TryCreate(url.FullUrl, UriKind.Absolute, out var inputUrl))
                 return Results.BadRequest("Был предоставлен неверный Url-адрес");
+            
+            int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var AnonUser = db.Users.First(x => x.UserName == "anonymous"); 
 
             //Проверяем есть ли входной url в Urls и был ли он уже преобразован в короткую ссылку для текущего пользователя
             //А так же не является ли пользователь анонимным
@@ -53,15 +52,35 @@ public static class ShortLinksRoutes {
                     AmountClicks = amountClicks.Count()
                 });
             }
+            Console.WriteLine(url.LifeTimeLink);
+            Console.WriteLine(url.Permanent);
+
+            var lifeTime = (currentUserId == AnonUser.Id) ? 4 : ((url.LifeTimeLink != 0) ? url.LifeTimeLink - 1 : 29);
+            if (lifeTime < 1 | lifeTime > 30)
+            {
+                return Results.BadRequest("Возможна установка срока действия ссылки от 1 до 30 дней.");
+            }
+
+            if (url.Permanent != "string" & currentUserId != AnonUser.Id)
+            {
+                if (url.Permanent.ToLower() != "yes" & url.Permanent.ToLower() != "no")
+                {
+                    return Results.BadRequest("Поле 'Permanent' может принимать только параметры 'Yes/No'.");
+                }
+            }
+            var permanent = (currentUserId == AnonUser.Id) ? "no" : ((url.Permanent.ToLower() == "yes") ? "yes" : "no");
+
+           
+            
+           
             
             //Создаем короткую версию предоставленного Url
             var random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@az";
             var randomStr = new string(Enumerable.Repeat(chars, 8)
                 .Select(x => x[random.Next(x.Length)]).ToArray());
+            
             var creationDate = DateTime.UtcNow.Date;
-
-            var lifeTime = (currentUserId == AnonUser.Id) ? 4 : ((url.LifeTimeLink != null) ? url.LifeTimeLink : 29);
 
             var expirationDate = creationDate.AddDays(lifeTime);
             var sUrl = new Url()
@@ -69,9 +88,9 @@ public static class ShortLinksRoutes {
                 FullUrl = url.FullUrl,
                 ShortUrl = randomStr,
                 UserId = currentUserId,
-                CreationDate = creationDate,
                 ExpirationDate = expirationDate,
-                LifeTimeLink = lifeTime
+                LifeTimeLink = lifeTime,
+                Permanent = permanent
             };
             db.Urls.Add(sUrl);
             await db.SaveChangesAsync();
@@ -83,7 +102,8 @@ public static class ShortLinksRoutes {
             {
                 return Results.Ok(new AnonUrlResponseDto()
                 {
-                    Message = $"Ссылка активна до {expirationDate}",
+                    Message = $"Так как вы являетесь анонимным пользователем" +
+                              $"ваша ссылка будет активной только 5 дней, т.е. до {expirationDate}",
                     ShortUrl = result
                 });
             }
