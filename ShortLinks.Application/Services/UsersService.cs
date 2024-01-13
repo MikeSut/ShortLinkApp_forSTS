@@ -28,8 +28,8 @@ public class Result<T> {
 
 public class Login {
     public required string Token { get; init; }
-
     public required User User { get; init; }
+    public string AllLinks { get; set; }
 }
 
 public class UserInfo {
@@ -77,10 +77,13 @@ public class UsersService : IUsersService {
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-
+        
+        
+        
+        
         return new Result<Login> {
             IsSuccess = true,
-            Value = new Login { Token = tokenHandler.WriteToken(token), User = user }
+            Value = new Login { Token = tokenHandler.WriteToken(token), User = user}
         };
     }
     

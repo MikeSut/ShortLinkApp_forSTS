@@ -1,23 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using ShortLinks.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using ShortLinks.Application;
+using ShortLinks.Application.Services;
 using ShortLinks.Presentation.Api.Dto;
 
 namespace ShortLinks.Presentation.Api;
 
-public class UrlRequestDto()
-{
-    public string FullUrl { get; set; }
-
-    public int LifeTimeLink { get; set; }
-
-    public string Permanent { get; set; }
-}
 
 public static class ShortLinksRoutes {
     
@@ -25,7 +17,7 @@ public static class ShortLinksRoutes {
     
     public static void MapShortLinksRoutes(this WebApplication application) {
         
-        application.MapPost("/shortlink", [Authorize] async (UrlRequestDto url, ApplicationDbContext db, HttpContext ctx) =>
+        application.MapPost("/shortlink", [Authorize] async (UrlRequestDto url, ApplicationDbContext db, HttpContext ctx, CacheService cacheService) =>
         {
             //Проверяем входной url
             if (!Uri.TryCreate(url.FullUrl, UriKind.Absolute, out var inputUrl))
@@ -33,6 +25,9 @@ public static class ShortLinksRoutes {
             
             int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var AnonUser = db.Users.First(x => x.UserName == "anonymous"); 
+            
+        
+            
 
             //Проверяем есть ли входной url в Urls и был ли он уже преобразован в короткую ссылку для текущего пользователя
             //А так же не является ли пользователь анонимным
@@ -52,10 +47,9 @@ public static class ShortLinksRoutes {
                     AmountClicks = amountClicks.Count()
                 });
             }
-            Console.WriteLine(url.LifeTimeLink);
-            Console.WriteLine(url.Permanent);
+ 
 
-            var lifeTime = (currentUserId == AnonUser.Id) ? 4 : ((url.LifeTimeLink != 0) ? url.LifeTimeLink - 1 : 29);
+            var lifeTime = (currentUserId == AnonUser.Id) ? 4 : ((url.LifeTimeLink != 0) ? url.LifeTimeLink - 1 : 9);
             if (lifeTime < 1 | lifeTime > 30)
             {
                 return Results.BadRequest("Возможна установка срока действия ссылки от 1 до 30 дней.");
@@ -81,20 +75,23 @@ public static class ShortLinksRoutes {
                 .Select(x => x[random.Next(x.Length)]).ToArray());
             
             var creationDate = DateTime.UtcNow.Date;
-
             var expirationDate = creationDate.AddDays(lifeTime);
+            
             var sUrl = new Url()
             {
                 FullUrl = url.FullUrl,
                 ShortUrl = randomStr,
                 UserId = currentUserId,
                 ExpirationDate = expirationDate,
-                LifeTimeLink = lifeTime,
                 Permanent = permanent
             };
-            db.Urls.Add(sUrl);
-            await db.SaveChangesAsync();
-            
+            await cacheService.AddUrl(sUrl);
+
+            if (currentUserId != AnonUser.Id)
+            {
+                db.Urls.Add(sUrl);
+                await db.SaveChangesAsync();
+            }
             var result = $"{ctx.Request.Scheme}://{ctx.Request.Host}/{sUrl.ShortUrl}";
             
             //Вывод для Анонимного пользователя
@@ -102,40 +99,58 @@ public static class ShortLinksRoutes {
             {
                 return Results.Ok(new AnonUrlResponseDto()
                 {
-                    Message = $"Так как вы являетесь анонимным пользователем" +
-                              $"ваша ссылка будет активной только 5 дней, т.е. до {expirationDate}",
+                    Message = $"Так как вы являетесь анонимным пользователем ваша ссылка будет активна 5 суток, т.е. до {expirationDate}",
                     ShortUrl = result
                 });
             }
-            
+
+            // var allLink = new Dictionary<string, string>();
+            // var allLinksUsers = db.Urls.Where(x => 
+            //     x.UserId == currentUserId & x.ExpirationDate >= DateTime.UtcNow);
+            // foreach (var z in allLinksUsers)
+            // {
+            //     Console.WriteLine(z.ShortUrl);
+            // }
             return Results.Ok(new UrlResponseDto()
             {
                 Message = $"Ссылка активна до {expirationDate}",
-                ShortUrl = result
+                ShortUrl = result,
+                
             });
         });
 
-        application.MapFallback(async (ApplicationDbContext db, HttpContext ctx) =>
+        application.MapFallback(async (ApplicationDbContext db, HttpContext ctx, CacheService cacheService) =>
         {
+
             var path = ctx.Request.Path.ToUriComponent().Trim('/');
-            var urlMatch = await db.Urls.FirstOrDefaultAsync(x =>
+            var permanentLinks = db.Urls.Where(x => x.Permanent == "yes");
+            var permanentLink = await permanentLinks.FirstOrDefaultAsync(x =>
                 x.ShortUrl.ToLower().Trim() == path.ToLower().Trim());
-            var ClientIpAddress = ctx.Connection.RemoteIpAddress.ToString();
-            var IdUrl = await db.Urls.FirstOrDefaultAsync(x => x.ShortUrl == path);
 
-            if (urlMatch == null)
-                return Results.BadRequest("Invalid request");
+            var urlMatchBase = await db.Urls.FirstOrDefaultAsync(x =>
+                x.ShortUrl.ToLower().Trim() == path.ToLower().Trim());
+            var urlMatchCache = await cacheService.GetUrl(path);
+            var clientIpAddress = ctx.Connection.RemoteIpAddress.ToString();
+            var idUrl = await db.Urls.FirstOrDefaultAsync(x => x.ShortUrl == path);
+            Console.WriteLine(urlMatchCache);
+            
+            
+            if (urlMatchBase == null & urlMatchCache == null & permanentLink == null)
+                return Results.BadRequest("Page not found.");
 
-            var sIpClient = new IpClient()
+            if (urlMatchBase != null)
             {
-                ClientIP = ClientIpAddress,
-                UrlId = IdUrl.Id
-            };
-            db.IpClients.Add(sIpClient);
-            await db.SaveChangesAsync();
-            
-            
-            return Results.Redirect(urlMatch.FullUrl);
+                var sIpClient = new IpClient()
+                {
+                    ClientIP = clientIpAddress,
+                    UrlId = idUrl.Id
+                };
+                db.IpClients.Add(sIpClient);
+                await db.SaveChangesAsync();
+            }
+
+            if (permanentLink != null) return Results.Redirect(permanentLink.FullUrl);
+            return Results.Redirect(urlMatchCache);
         });
     }
 }
