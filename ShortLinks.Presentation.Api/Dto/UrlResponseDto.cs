@@ -5,7 +5,6 @@ public class UrlResponseDto
     public string Message { get; set; } = "";
     
     public string ShortUrl { get; set; } = "";
-    public string AllLink { get; set; } = "";
 
     
 }

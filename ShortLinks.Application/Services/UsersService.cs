@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using ShortLinks.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -29,7 +30,7 @@ public class Result<T> {
 public class Login {
     public required string Token { get; init; }
     public required User User { get; init; }
-    public string AllLinks { get; set; }
+    public List<string> YourShortLinks { get; set; }
 }
 
 public class UserInfo {
@@ -57,7 +58,7 @@ public class UsersService : IUsersService {
     }
     
   
-    public async Task<Result<Login>> LoginAsync(UserInfo login, CancellationToken c) {
+    public async Task<Result<Login>> LoginAsync(UserInfo login, HttpContext context, CancellationToken c) {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.UserName.ToLower() == login.Username.ToLower(), c);
         
         if (user == null) {
@@ -78,12 +79,18 @@ public class UsersService : IUsersService {
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         
-        
+        var allLinks = new List<string>();
+        var allLinksUsers = _db.Urls.Where(x => 
+            x.UserId == user.Id & x.ExpirationDate >= DateTime.UtcNow);
+        foreach (var z in allLinksUsers)
+        {
+            allLinks.Add($"{context.Request.Scheme}://{context.Request.Host}/{z.ShortUrl}");
+        }
         
         
         return new Result<Login> {
             IsSuccess = true,
-            Value = new Login { Token = tokenHandler.WriteToken(token), User = user}
+            Value = new Login { Token = tokenHandler.WriteToken(token), User = user, YourShortLinks = allLinks}
         };
     }
     

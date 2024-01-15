@@ -104,13 +104,7 @@ public static class ShortLinksRoutes {
                 });
             }
 
-            // var allLink = new Dictionary<string, string>();
-            // var allLinksUsers = db.Urls.Where(x => 
-            //     x.UserId == currentUserId & x.ExpirationDate >= DateTime.UtcNow);
-            // foreach (var z in allLinksUsers)
-            // {
-            //     Console.WriteLine(z.ShortUrl);
-            // }
+           
             return Results.Ok(new UrlResponseDto()
             {
                 Message = $"Ссылка активна до {expirationDate}",
