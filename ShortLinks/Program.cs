@@ -43,6 +43,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.MapUsersRoutes();
 app.MapShortLinksRoutes();
+app.MapTgRoutes();
 
 app.UseAuthentication();
 app.UseAuthorization();

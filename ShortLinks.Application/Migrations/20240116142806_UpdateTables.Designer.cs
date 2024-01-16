@@ -12,8 +12,8 @@ using ShortLinks.Application;
 namespace ShortLinks.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240110112236_AddFieldsInUrls")]
-    partial class AddFieldsInUrls
+    [Migration("20240116142806_UpdateTables")]
+    partial class UpdateTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,6 +47,27 @@ namespace ShortLinks.Application.Migrations
                     b.ToTable("IpClients");
                 });
 
+            modelBuilder.Entity("ShortLinks.Domain.Entity.PhoneNumber", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Phone")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PhoneNumbers");
+                });
+
             modelBuilder.Entity("ShortLinks.Domain.Entity.Url", b =>
                 {
                     b.Property<int>("Id")
@@ -55,18 +76,12 @@ namespace ShortLinks.Application.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FullUrl")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("LifeTimeLink")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Permanent")
                         .IsRequired()
@@ -122,6 +137,17 @@ namespace ShortLinks.Application.Migrations
                     b.Navigation("Url");
                 });
 
+            modelBuilder.Entity("ShortLinks.Domain.Entity.PhoneNumber", b =>
+                {
+                    b.HasOne("ShortLinks.Domain.Entity.User", "User")
+                        .WithMany("PhoneNumbers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ShortLinks.Domain.Entity.Url", b =>
                 {
                     b.HasOne("ShortLinks.Domain.Entity.User", "User")
@@ -140,6 +166,8 @@ namespace ShortLinks.Application.Migrations
 
             modelBuilder.Entity("ShortLinks.Domain.Entity.User", b =>
                 {
+                    b.Navigation("PhoneNumbers");
+
                     b.Navigation("Urls");
                 });
 #pragma warning restore 612, 618
