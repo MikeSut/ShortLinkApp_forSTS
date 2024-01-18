@@ -20,7 +20,7 @@ public static class TgRoutes
             {
                 return Results.Unauthorized();
             }
-            var client = new TelegramBotClient("6303027654:AAGDrnppv5c0PnKU9IS5qVY6C1uEwGGFteg");
+            var client = new TelegramBotClient("");
             client.StartReceiving(Update, Error);
             
 

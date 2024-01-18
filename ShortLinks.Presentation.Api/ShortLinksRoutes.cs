@@ -104,7 +104,14 @@ public static class ShortLinksRoutes {
                 });
             }
 
-           
+            if (permanent == "yes")
+            {
+                return Results.Ok(new UrlResponseDto()
+                {
+                    Message = $"Ваша ссылка перманентна",
+                    ShortUrl = result
+                });
+            }
             return Results.Ok(new UrlResponseDto()
             {
                 Message = $"Ссылка активна до {expirationDate}",
