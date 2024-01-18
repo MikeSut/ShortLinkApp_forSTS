@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ShortLinks.Domain.Entity;
 
 public class User {
@@ -9,9 +11,10 @@ public class User {
 
     public string Password { get; set; } = null!;
 
+    public string PhoneNumber { get; set; } = null!;
+
     public List<Url> Urls { get; set; } = new();
     
-    public List<PhoneNumber> PhoneNumbers { get; set; } = new();
 
 
 }

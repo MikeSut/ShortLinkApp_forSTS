@@ -1,9 +1,9 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using ShortLinks.Application;
 using Microsoft.EntityFrameworkCore;
 using ShortLinks.Application.Services;
 using ShortLinks.Configurations;
+using ShortLinks.Domain.Entity;
 using ShortLinks.Presentation.Api;
 
 
@@ -43,7 +43,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.MapUsersRoutes();
 app.MapShortLinksRoutes();
-app.MapTgRoutes();
+// app.MapTgRoutes();
 
 app.UseAuthentication();
 app.UseAuthorization();

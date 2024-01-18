@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,7 +18,9 @@ public class UserRegistration
     public string UserName { get; set; }
     
     public string Password { get; set; }
-    
+
+    public string PhoneNumber { get; set; }
+
 }
 public class Result<T> {
     public bool IsSuccess { get; init; }
@@ -38,6 +41,8 @@ public class UserInfo {
 
     public string Password { get; init; }
 }
+
+
 
 public class UsersService : IUsersService {
     private readonly ApplicationDbContext _db;
@@ -101,6 +106,7 @@ public class UsersService : IUsersService {
             Name = userRegistration.Name,
             UserName = userRegistration.UserName,
             Password = userRegistration.Password,
+            PhoneNumber = userRegistration.PhoneNumber
         };
         _db.Users.Add(user);
         await _db.SaveChangesAsync();

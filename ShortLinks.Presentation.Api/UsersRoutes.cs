@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using ShortLinks.Application;
 using ShortLinks.Application.Services;
 using ShortLinks.Presentation.Api.Dto;
@@ -36,6 +37,7 @@ public static class UsersRoutes {
             {
                 return Results.BadRequest("Error while register");
             }
+            
 
             return Results.Ok("Регистрация прошла успешно!");
         });

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ShortLinks.Application.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateTables : Migration
+    public partial class updateDataBases : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,31 +20,12 @@ namespace ShortLinks.Application.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: false)
+                    Password = table.Column<string>(type: "text", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PhoneNumbers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    Phone = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PhoneNumbers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PhoneNumbers_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -96,11 +77,6 @@ namespace ShortLinks.Application.Migrations
                 column: "UrlId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PhoneNumbers_UserId",
-                table: "PhoneNumbers",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Urls_UserId",
                 table: "Urls",
                 column: "UserId");
@@ -111,9 +87,6 @@ namespace ShortLinks.Application.Migrations
         {
             migrationBuilder.DropTable(
                 name: "IpClients");
-
-            migrationBuilder.DropTable(
-                name: "PhoneNumbers");
 
             migrationBuilder.DropTable(
                 name: "Urls");

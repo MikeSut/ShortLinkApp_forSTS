@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using ShortLinks.Application;
-using ShortLinks.Domain.Entity;
 using ShortLinks.Presentation.Api.Dto;
+using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace ShortLinks.Presentation.Api;
 
@@ -10,7 +11,7 @@ public static class TgRoutes
 {
     public static void MapTgRoutes(this WebApplication app)
     {
-        app.MapPost("ConnectTelegram", [Authorize] async (TgRequestDto tgRequest, 
+        app.MapGet("ConnectTelegram", [Authorize] async (TgRequestDto tgRequest, 
             HttpContext ctx, ApplicationDbContext db) =>
         {
             int currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -19,18 +20,38 @@ public static class TgRoutes
             {
                 return Results.Unauthorized();
             }
-
-            var sPhoneNumber = new PhoneNumber()
-            {
-                UserId = currentUserId,
-                Phone = tgRequest.PhoneNumber
-            };
-            db.PhoneNumbers.Add(sPhoneNumber);
-            await db.SaveChangesAsync();
+            var client = new TelegramBotClient("6303027654:AAGDrnppv5c0PnKU9IS5qVY6C1uEwGGFteg");
+            client.StartReceiving(Update, Error);
+            
 
             return Results.Ok("all ok");
 
 
         });
     }
+    
+    private static Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
+    {
+        var message = update.Message;
+        Console.WriteLine($"{message.Chat.FirstName}  |  {message.Text}");
+        if (message.Text != null)
+        {
+            if (message.Text.ToLower().Contains("здорова"))
+            {
+                botClient.SendTextMessageAsync(message.Chat.Id, "Изенер");
+                
+            }
+        }
+
+        return botClient.SendTextMessageAsync(message.Chat.Id, "empty");
+        
+
+    }
+    
+    private static Task Error(ITelegramBotClient arg1, Exception arg2, CancellationToken arg3)
+    {
+        throw new NotImplementedException();
+    }
+
+
 }
