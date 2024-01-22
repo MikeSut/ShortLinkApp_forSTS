@@ -33,7 +33,7 @@ public static class ShortLinksRoutes {
             //А так же не является ли пользователь анонимным
             //Если условие истинно возвращаем уже сгенерированную короткую ссылку и количество переходов по ней
             var strUrl = await db.Urls.FirstOrDefaultAsync(x => 
-                x.FullUrl == url.FullUrl & x.UserId == currentUserId & currentUserId != AnonUser.Id);
+                x.FullUrl == url.FullUrl && x.UserId == currentUserId & currentUserId != AnonUser.Id);
             
            if (strUrl != null)
             {
@@ -50,12 +50,12 @@ public static class ShortLinksRoutes {
  
 
             var lifeTime = (currentUserId == AnonUser.Id) ? 4 : ((url.LifeTimeLink != 0) ? url.LifeTimeLink - 1 : 9);
-            if (lifeTime < 1 | lifeTime > 30)
+            if (lifeTime is < 1 or > 30)
             {
                 return Results.BadRequest("Возможна установка срока действия ссылки от 1 до 30 дней.");
             }
 
-            if (url.Permanent != "string" & currentUserId != AnonUser.Id)
+            if (url.Permanent != "string" && currentUserId != AnonUser.Id)
             {
                 if (url.Permanent.ToLower() != "yes" & url.Permanent.ToLower() != "no")
                 {

@@ -3,9 +3,14 @@ using ShortLinks.Application;
 using Microsoft.EntityFrameworkCore;
 using ShortLinks.Application.Services;
 using ShortLinks.Configurations;
-using ShortLinks.Domain.Entity;
 using ShortLinks.Presentation.Api;
+using ShortLinks.Presentation.Api.TelegramCommands;
+using Telegram.Bot;
 
+
+
+var telegram = new TelegramBotClient("");
+telegram.StartReceiving(Handlers.Update, Handlers.Error);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +31,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "local";
 });
 
+
 builder.Services.AddTransient<CacheService>();
 
 builder.Services.ConfigureSwagger();
@@ -43,7 +49,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.MapUsersRoutes();
 app.MapShortLinksRoutes();
-// app.MapTgRoutes();
+app.MapTgRoutes();
 
 app.UseAuthentication();
 app.UseAuthorization();
