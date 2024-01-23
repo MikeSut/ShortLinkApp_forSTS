@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using ShortLinks.Application;
 using Microsoft.EntityFrameworkCore;
 using ShortLinks.Application.Services;
@@ -9,7 +8,7 @@ using Telegram.Bot;
 
 
 
-var telegram = new TelegramBotClient("");
+var telegram = new TelegramBotClient("6303027654:AAGDrnppv5c0PnKU9IS5qVY6C1uEwGGFteg");
 telegram.StartReceiving(Handlers.Update, Handlers.Error);
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +48,6 @@ if (app.Environment.IsDevelopment()) {
 
 app.MapUsersRoutes();
 app.MapShortLinksRoutes();
-app.MapTgRoutes();
 
 app.UseAuthentication();
 app.UseAuthorization();
