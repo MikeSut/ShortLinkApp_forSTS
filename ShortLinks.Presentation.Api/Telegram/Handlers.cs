@@ -1,48 +1,36 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace ShortLinks.Presentation.Api.TelegramCommands;
+namespace ShortLinks.Presentation.Api.Telegram;
 
 public static class Handlers
 {
-    public readonly struct Message
-    {
-        [Required, JsonInclude, JsonPropertyName("chat_id")]
-        public readonly string ChatId;
-       
-        [Required, Range(1, 4096), JsonInclude, JsonPropertyName("text")]
-        public readonly string Text;
- 
-        public Message(string chatId, string text)
-        {
-            if (string.IsNullOrEmpty(text) || text.Length < 1 || text.Length > 4096)
-            {
-                throw new ArgumentOutOfRangeException(nameof(text), "Размер сообщения должен удовлетворять диапазону 1 - 4096");
-            }
-            
-            ChatId = chatId;
-            Text = text;
-        }
-    }
-    
+    // public static ApplicationDbContext db;
     public static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
    {
        var message = update.Message;
-       Console.WriteLine($"{message.Chat.FirstName}  |  {message.Text}");
-       if (message.Text != null)
-       {
-           if (message.Text.ToLower().Contains("здорова"))
+       Console.WriteLine($"{message?.Chat.FirstName}  |  {message?.Text}");
+       if (message?.Text != null)
+       { 
+           if (message.Text.Contains("Привет", StringComparison.CurrentCultureIgnoreCase))
            {
-               await botClient.SendTextMessageAsync(message.Chat.Id, "Изенер");
-               
+               await botClient.SendTextMessageAsync(message.Chat.Id, "Введите UserName:", cancellationToken: token);
+               return;
+       //         var userName = db.Users.FirstOrDefault(x => x.UserName == message.Text);
+       //         if (userName == null)
+       //         {
+       //             await botClient.SendTextMessageAsync(message.Chat.Id, $"Пользователь {message.Text} не найден");
+       //         }
+       //         await botClient.SendTextMessageAsync(message.Chat.Id, "Введите Password:");
            }
        }
+       
    }
 
    public static async Task Error(ITelegramBotClient arg1, Exception arg2, CancellationToken arg3)
    {
        throw new NotImplementedException();
    }
+   
+   
 }
