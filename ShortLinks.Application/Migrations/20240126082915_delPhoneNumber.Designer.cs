@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ShortLinks.Application;
@@ -11,9 +12,11 @@ using ShortLinks.Application;
 namespace ShortLinks.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240126082915_delPhoneNumber")]
+    partial class delPhoneNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,27 +45,6 @@ namespace ShortLinks.Application.Migrations
                     b.HasIndex("UrlId");
 
                     b.ToTable("IpClients");
-                });
-
-            modelBuilder.Entity("ShortLinks.Domain.Entity.TgChatId", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TgChatIdUsers");
                 });
 
             modelBuilder.Entity("ShortLinks.Domain.Entity.Url", b =>
@@ -134,17 +116,6 @@ namespace ShortLinks.Application.Migrations
                     b.Navigation("Url");
                 });
 
-            modelBuilder.Entity("ShortLinks.Domain.Entity.TgChatId", b =>
-                {
-                    b.HasOne("ShortLinks.Domain.Entity.User", "User")
-                        .WithMany("TgUserNames")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ShortLinks.Domain.Entity.Url", b =>
                 {
                     b.HasOne("ShortLinks.Domain.Entity.User", "User")
@@ -163,8 +134,6 @@ namespace ShortLinks.Application.Migrations
 
             modelBuilder.Entity("ShortLinks.Domain.Entity.User", b =>
                 {
-                    b.Navigation("TgUserNames");
-
                     b.Navigation("Urls");
                 });
 #pragma warning restore 612, 618

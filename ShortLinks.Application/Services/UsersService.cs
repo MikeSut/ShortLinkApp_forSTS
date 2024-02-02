@@ -19,7 +19,6 @@ public class UserRegistration
     
     public string Password { get; set; }
 
-    public string PhoneNumber { get; set; }
 
 }
 public class Result<T> {
@@ -86,7 +85,7 @@ public class UsersService : IUsersService {
         
         var allLinks = new List<string>();
         var allLinksUsers = _db.Urls.Where(x => 
-            x.UserId == user.Id & x.ExpirationDate >= DateTime.UtcNow);
+            x.UserId == user.Id && x.ExpirationDate >= DateTime.UtcNow || x.Permanent == "yes");
         foreach (var z in allLinksUsers)
         {
             allLinks.Add($"{context.Request.Scheme}://{context.Request.Host}/{z.ShortUrl}");
@@ -106,7 +105,6 @@ public class UsersService : IUsersService {
             Name = userRegistration.Name,
             UserName = userRegistration.UserName,
             Password = userRegistration.Password,
-            PhoneNumber = userRegistration.PhoneNumber
         };
         _db.Users.Add(user);
         await _db.SaveChangesAsync();

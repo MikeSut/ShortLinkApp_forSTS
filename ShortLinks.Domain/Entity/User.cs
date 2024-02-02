@@ -11,10 +11,10 @@ public class User {
 
     public string Password { get; set; } = null!;
 
-    public string PhoneNumber { get; set; } = null!;
+    public List<Url> Urls { get; init; } = [];
 
-    public List<Url> Urls { get; set; } = new();
-    
+    public List<TgChatId> TgUserNames { get; set; } = [];
+
 
 
 }

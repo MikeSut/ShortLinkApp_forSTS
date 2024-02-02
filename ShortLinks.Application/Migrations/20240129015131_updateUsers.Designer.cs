@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ShortLinks.Application;
@@ -11,9 +12,11 @@ using ShortLinks.Application;
 namespace ShortLinks.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240129015131_updateUsers")]
+    partial class updateUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +47,7 @@ namespace ShortLinks.Application.Migrations
                     b.ToTable("IpClients");
                 });
 
-            modelBuilder.Entity("ShortLinks.Domain.Entity.TgChatId", b =>
+            modelBuilder.Entity("ShortLinks.Domain.Entity.TgUserName", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +65,7 @@ namespace ShortLinks.Application.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TgChatIdUsers");
+                    b.ToTable("TgUserNames");
                 });
 
             modelBuilder.Entity("ShortLinks.Domain.Entity.Url", b =>
@@ -134,7 +137,7 @@ namespace ShortLinks.Application.Migrations
                     b.Navigation("Url");
                 });
 
-            modelBuilder.Entity("ShortLinks.Domain.Entity.TgChatId", b =>
+            modelBuilder.Entity("ShortLinks.Domain.Entity.TgUserName", b =>
                 {
                     b.HasOne("ShortLinks.Domain.Entity.User", "User")
                         .WithMany("TgUserNames")

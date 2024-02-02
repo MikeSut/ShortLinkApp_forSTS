@@ -16,7 +16,7 @@ public static class TgBotRoutes
             {
                 return Results.Unauthorized();
             }
-            
+             
             return Results.Ok(new TgBotResponse()
             {
                 Link = $"t.me/csharp_ShortLink_bot?start={registeredUser.CurrentUserName()}"

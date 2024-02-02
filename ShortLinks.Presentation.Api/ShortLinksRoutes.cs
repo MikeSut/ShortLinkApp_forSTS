@@ -136,8 +136,8 @@ public static class ShortLinksRoutes {
             Console.WriteLine(urlMatchCache);
             
             
-            if (urlMatchBase == null & urlMatchCache == null & permanentLink == null)
-                return Results.BadRequest("Page not found.");
+            if (urlMatchCache == null & permanentLink == null)
+                return Results.BadRequest("Page not found");
 
             if (urlMatchBase != null)
             {

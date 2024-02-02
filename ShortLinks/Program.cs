@@ -4,14 +4,13 @@ using ShortLinks.Application.Services;
 using ShortLinks.Configurations;
 using ShortLinks.Presentation.Api;
 using ShortLinks.Presentation.Api.Telegram;
-using Telegram.Bot;
 
-
-
-var telegram = new TelegramBotClient("6303027654:AAGDrnppv5c0PnKU9IS5qVY6C1uEwGGFteg");
-telegram.StartReceiving(Handlers.Update, Handlers.Error);
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging
+    .SetMinimumLevel(LogLevel.Debug)
+    .AddConsole();
 
 builder.Services.AddDbContext<ApplicationDbContext>(option => {
     option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -33,6 +32,9 @@ builder.Services.AddTransient<CacheService>();
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
+
+builder.Services.AddTelegramBotServices();
+
 
 var app = builder.Build();
 
