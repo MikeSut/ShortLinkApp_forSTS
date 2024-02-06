@@ -5,6 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using User = ShortLinks.Domain.Entity.User;
 
 namespace ShortLinks.Presentation.Api.Telegram;
 
@@ -12,7 +13,8 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
 {
     private const string Button1 = "Get all ShortLinks";
     private const string Button2 = "Get only Permanent ShortLinks";
-    
+    private static readonly string[] Buttons = [Button1, Button2];
+
     public async Task HandleUpdateAsync(
         ITelegramBotClient client, Update update, CancellationToken cancellationToken)
     {
@@ -22,47 +24,71 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         {
             { Message.Text: { } messageText } when messageText.StartsWith("/")
                 => HandleCommand(client, update, messageText, cancellationToken),
+            {Message.Text: { } messageText } when Buttons.Any(x => x == messageText)
+                => HandleButton(client, update, messageText, cancellationToken),
             _
                 => HandleDefault(client, update, cancellationToken)
         };
         await handleTask;
     }
 
-    private async Task HandleCommand(
+    private Task HandleCommand(
         ITelegramBotClient client, Update update, string messageText, CancellationToken cancellationToken)
     {
+        var chatId = update.Message!.Chat.Id;
         if (messageText.ToLower().Contains("/start "))
         {
-            var message = update.Message;
-            if (db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == message.Chat.Id) == null)
+            var userName = messageText.Split(' ')[1];
+            var user = db?.Users.FirstOrDefault(x => x.UserName == userName);
+            if (user is null)
             {
-                var isExistUser = await isExistsUserTask(messageText, message.Chat.Id);
-                if (isExistUser == false)
-                {
-                    await client.SendTextMessageAsync(message.Chat.Id, "Вы не зарегистрированы", cancellationToken: cancellationToken);
-                    return;
-                }
+                return client.SendTextMessageAsync(
+                    chatId, "Пользователь с таким UserName не найден", cancellationToken: cancellationToken
+                );
             }
+
+            SaveChatId(user.Id, chatId);
+            return client.SendTextMessageAsync(
+                chatId, $"Добрый день, {user.Name}. Добро пожаловать в сервис коротких ссылок! Выберите дальнейшую комманду:", replyMarkup: GetButtons(), cancellationToken: cancellationToken
+            );
+            
         }
-        
-
-        
-
-
+        return messageText switch {
+            _
+                => HandleDefault(client, update, cancellationToken)
+        };
     }
 
-    private IReplyMarkup? GetButtons()
+
+    private Task HandleButton(ITelegramBotClient client, Update update, string messageText,
+        CancellationToken cancellationToken)
     {
-        return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
+        var chatId = update.Message!.Chat.Id;
+
+        return messageText switch
         {
-            Keyboard = new List<List<KeyboardButton>>
-            {
-                new List<KeyboardButton>{ new KeyboardButton(Button1) },
-                new List<KeyboardButton>{ new KeyboardButton(Button2) }
-
-            }
-
+            Button1
+                => GetAllLinks(chatId, client, update, cancellationToken),
+            _
+                => HandleDefault(client, update, cancellationToken)
         };
+    }
+
+    private Task GetAllLinks(long chatId, ITelegramBotClient client, Update update,
+        CancellationToken cancellationToken)
+    {
+        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId).Id;
+        var allLinks = new List<string>();
+        var allLinksUsers = db?.Urls.Where(x => 
+            x.UserId == userId && x.ExpirationDate >= DateTime.UtcNow || x.Permanent == "yes");
+        foreach (var z in allLinksUsers)
+        {
+            allLinks.Add(z.ShortUrl);
+        }
+
+        return client.SendTextMessageAsync(
+            chatId, $"{allLinks}", cancellationToken: cancellationToken
+        );
     }
 
 
@@ -82,26 +108,35 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         return Task.CompletedTask;
     }
 
-    private Task<bool> isExistsUserTask(string messageText, long chatId)
+    private async Task SaveChatId(int userId, long chatId)
     {
-        var userName = messageText.Split(' ')[1];
-        var user = db?.Users.FirstOrDefault(x => x.UserName == userName);
-
-        if (user == null)
+        var getUser = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId);
+        if (getUser == null)
         {
-            return Task.FromResult(false);
+            var newTgChatId = new TgChatId()
+            {
+                UserId = userId,
+                ChatId = chatId
+            };
+            db?.TgChatIdUsers.Add(newTgChatId);
+            await db.SaveChangesAsync();
         }
-        
-        var userChatId = new TgChatId()
-        {
-            UserId = user.Id,
-            ChatId = chatId
-        };
-        db?.TgChatIdUsers.Add(userChatId);
-        db?.SaveChangesAsync();
-        return Task.FromResult(true);
+    }
 
-        
+    
+    
+    private IReplyMarkup? GetButtons()
+    {
+        return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
+        {
+            Keyboard = new List<List<KeyboardButton>>
+            {
+                new List<KeyboardButton>{ new KeyboardButton(Button1) },
+                new List<KeyboardButton>{ new KeyboardButton(Button2) }
+
+            }
+
+        };
     }
 
 
