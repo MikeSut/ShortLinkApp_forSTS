@@ -1,11 +1,11 @@
 using ShortLinks.Application;
-using Microsoft.Extensions.Logging;
 using ShortLinks.Domain.Entity;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
+using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using User = ShortLinks.Domain.Entity.User;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ShortLinks.Presentation.Api.Telegram;
 
@@ -14,6 +14,7 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
     private const string Button1 = "Get all ShortLinks";
     private const string Button2 = "Get only Permanent ShortLinks";
     private static readonly string[] Buttons = [Button1, Button2];
+
 
     public async Task HandleUpdateAsync(
         ITelegramBotClient client, Update update, CancellationToken cancellationToken)
@@ -77,19 +78,28 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
     private Task GetAllLinks(long chatId, ITelegramBotClient client, Update update,
         CancellationToken cancellationToken)
     {
-        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId).Id;
-        var allLinks = new List<string>();
+        var allLinks = "";
+        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId).UserId;
         var allLinksUsers = db?.Urls.Where(x => 
-            x.UserId == userId && x.ExpirationDate >= DateTime.UtcNow || x.Permanent == "yes");
+            x.UserId == userId && x.ExpirationDate >= DateTime.UtcNow || x.UserId == userId && x.Permanent == "yes");
+        if (allLinksUsers == null) 
+        {
+            return client.SendTextMessageAsync(
+            chatId, $"У вас еще нет сгенерированных коротких ссылок.", cancellationToken: cancellationToken);
+        }
+
+
+
         foreach (var z in allLinksUsers)
         {
-            allLinks.Add(z.ShortUrl);
+            allLinks +=  z.ShortUrl + "\n";
         }
 
         return client.SendTextMessageAsync(
             chatId, $"{allLinks}", cancellationToken: cancellationToken
         );
     }
+
 
 
     public Task HandlePollingErrorAsync(
@@ -139,6 +149,4 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         };
     }
 
-
-    
 }

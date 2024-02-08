@@ -133,7 +133,6 @@ public static class ShortLinksRoutes {
             var urlMatchCache = await cacheService.GetUrl(path);
             var clientIpAddress = ctx.Connection.RemoteIpAddress.ToString();
             var idUrl = await db.Urls.FirstOrDefaultAsync(x => x.ShortUrl == path);
-            Console.WriteLine(urlMatchCache);
             
             
             if (urlMatchCache == null & permanentLink == null)

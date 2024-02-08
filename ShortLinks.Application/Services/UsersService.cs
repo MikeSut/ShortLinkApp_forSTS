@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -85,7 +84,7 @@ public class UsersService : IUsersService {
         
         var allLinks = new List<string>();
         var allLinksUsers = _db.Urls.Where(x => 
-            x.UserId == user.Id && x.ExpirationDate >= DateTime.UtcNow || x.Permanent == "yes");
+            x.UserId == user.Id && x.ExpirationDate >= DateTime.UtcNow || x.UserId == user.Id && x.Permanent == "yes");
         foreach (var z in allLinksUsers)
         {
             allLinks.Add($"{context.Request.Scheme}://{context.Request.Host}/{z.ShortUrl}");
@@ -111,4 +110,6 @@ public class UsersService : IUsersService {
         user.Password = "";
         return user;
     }
+
+    
 }
