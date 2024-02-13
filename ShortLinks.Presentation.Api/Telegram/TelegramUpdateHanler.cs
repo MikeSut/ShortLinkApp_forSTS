@@ -2,15 +2,17 @@ using ShortLinks.Application;
 using ShortLinks.Domain.Entity;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+using Microsoft.Extensions.Options;
+
 
 namespace ShortLinks.Presentation.Api.Telegram;
 
-public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDbContext? db) : IUpdateHandler
+public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDbContext? db, 
+    IOptions<CredentialsOptions> optProvider) : IUpdateHandler
 {
+    private readonly string _publicAddress = optProvider.Value.PublicAddress;
     private const string Button1 = "Get all ShortLinks";
     private const string Button2 = "Get only Permanent ShortLinks";
     private static readonly string[] Buttons = [Button1, Button2];
@@ -70,37 +72,12 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         {
             Button1
                 => GetAllLinks(chatId, client, update, cancellationToken),
+            Button2
+                => GetOnlyPermanentLinks(chatId, client, update, cancellationToken),
             _
                 => HandleDefault(client, update, cancellationToken)
         };
     }
-
-    private Task GetAllLinks(long chatId, ITelegramBotClient client, Update update,
-        CancellationToken cancellationToken)
-    {
-        var allLinks = "";
-        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId).UserId;
-        var allLinksUsers = db?.Urls.Where(x => 
-            x.UserId == userId && x.ExpirationDate >= DateTime.UtcNow || x.UserId == userId && x.Permanent == "yes");
-        if (allLinksUsers == null) 
-        {
-            return client.SendTextMessageAsync(
-            chatId, $"У вас еще нет сгенерированных коротких ссылок.", cancellationToken: cancellationToken);
-        }
-
-
-
-        foreach (var z in allLinksUsers)
-        {
-            allLinks +=  z.ShortUrl + "\n";
-        }
-
-        return client.SendTextMessageAsync(
-            chatId, $"{allLinks}", cancellationToken: cancellationToken
-        );
-    }
-
-
 
     public Task HandlePollingErrorAsync(
         ITelegramBotClient client, Exception exception, CancellationToken cancellationToken
@@ -133,8 +110,6 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         }
     }
 
-    
-    
     private IReplyMarkup? GetButtons()
     {
         return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
@@ -147,6 +122,51 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
             }
 
         };
+    }
+    
+    private Task GetOnlyPermanentLinks(long chatId, ITelegramBotClient client, Update update, 
+        CancellationToken cancellationToken)
+    {
+        var allLinks = "";
+        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId)?.UserId;
+        var allLinksUsers = db?.Urls.Where(x => 
+            x.UserId == userId && x.Permanent == "yes");
+        if (allLinksUsers == null) 
+        {
+            return client.SendTextMessageAsync(
+                chatId, $"У вас еще нет перманентных коротких ссылок.", cancellationToken: cancellationToken);
+        }
+
+        foreach (var z in allLinksUsers)
+        {
+            allLinks +=  _publicAddress + "/" + z.ShortUrl + "\n";
+        }
+
+        return client.SendTextMessageAsync(
+            chatId, $"{allLinks}", cancellationToken: cancellationToken
+        );    }
+
+    private Task GetAllLinks(long chatId, ITelegramBotClient client, Update update,
+        CancellationToken cancellationToken)
+    {
+        var allLinks = "";
+        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId)?.UserId;
+        var allLinksUsers = db?.Urls.Where(x => 
+            x.UserId == userId && x.ExpirationDate >= DateTime.UtcNow || x.UserId == userId && x.Permanent == "yes");
+        if (allLinksUsers == null) 
+        {
+            return client.SendTextMessageAsync(
+                chatId, $"У вас еще нет сгенерированных коротких ссылок.", cancellationToken: cancellationToken);
+        }
+
+        foreach (var z in allLinksUsers)
+        {
+            allLinks +=  _publicAddress + "/" + z.ShortUrl + "\n";
+        }
+
+        return client.SendTextMessageAsync(
+            chatId, $"{allLinks}", cancellationToken: cancellationToken
+        );
     }
 
 }
