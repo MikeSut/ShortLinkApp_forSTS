@@ -3,8 +3,10 @@ using ShortLinks.Domain.Entity;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
 using Microsoft.Extensions.Options;
+
 
 
 namespace ShortLinks.Presentation.Api.Telegram;
@@ -15,7 +17,11 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
     private readonly string _publicAddress = optProvider.Value.PublicAddress;
     private const string Button1 = "Get all ShortLinks";
     private const string Button2 = "Get only Permanent ShortLinks";
-    private static readonly string[] Buttons = [Button1, Button2];
+    private const string Button3 = "Generate QR-Code";
+    private const string Button4 = "Restart the bot";
+
+
+    private static readonly string[] Buttons = [Button1, Button2, Button3, Button4];
 
 
     public async Task HandleUpdateAsync(
@@ -52,10 +58,17 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
 
             SaveChatId(user.Id, chatId);
             return client.SendTextMessageAsync(
-                chatId, $"Добрый день, {user.Name}. Добро пожаловать в сервис коротких ссылок! Выберите дальнейшую комманду:", replyMarkup: GetButtons(), cancellationToken: cancellationToken
+                chatId, $"Добрый день, {user.Name}. Добро пожаловать в сервис коротких ссылок! " +
+                        $"Выберите дальнейшую комманду:", replyMarkup: GetButtons(), cancellationToken: cancellationToken
             );
             
         }
+
+        // if (messageText.ToLower().Contains(_publicAddress.ToLower()))
+        // {
+        //     GetQrCode(messageText, client, update, cancellationToken)
+        // }
+            
         return messageText switch {
             _
                 => HandleDefault(client, update, cancellationToken)
@@ -74,6 +87,10 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
                 => GetAllLinks(chatId, client, update, cancellationToken),
             Button2
                 => GetOnlyPermanentLinks(chatId, client, update, cancellationToken),
+            Button3
+                => GetQrCode(chatId, client, update, cancellationToken),
+            Button4
+                => BotRestart(chatId, client, update, cancellationToken),
             _
                 => HandleDefault(client, update, cancellationToken)
         };
@@ -95,34 +112,6 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         return Task.CompletedTask;
     }
 
-    private async Task SaveChatId(int userId, long chatId)
-    {
-        var getUser = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId);
-        if (getUser == null)
-        {
-            var newTgChatId = new TgChatId()
-            {
-                UserId = userId,
-                ChatId = chatId
-            };
-            db?.TgChatIdUsers.Add(newTgChatId);
-            await db.SaveChangesAsync();
-        }
-    }
-
-    private IReplyMarkup? GetButtons()
-    {
-        return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
-        {
-            Keyboard = new List<List<KeyboardButton>>
-            {
-                new List<KeyboardButton>{ new KeyboardButton(Button1) },
-                new List<KeyboardButton>{ new KeyboardButton(Button2) }
-
-            }
-
-        };
-    }
     
     private Task GetOnlyPermanentLinks(long chatId, ITelegramBotClient client, Update update, 
         CancellationToken cancellationToken)
@@ -143,8 +132,10 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         }
 
         return client.SendTextMessageAsync(
-            chatId, $"{allLinks}", cancellationToken: cancellationToken
-        );    }
+            chatId, $"{allLinks} \nЕсли вы хотите сгенерировать qr-code для вашей ссылки, " +
+                    $"вставьте соответствующую ссылку в строку и выберите команду 'Generate QR-Code'.", replyMarkup: GetButtonQr(), cancellationToken: cancellationToken
+        );    
+    }
 
     private Task GetAllLinks(long chatId, ITelegramBotClient client, Update update,
         CancellationToken cancellationToken)
@@ -165,8 +156,84 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
         }
 
         return client.SendTextMessageAsync(
-            chatId, $"{allLinks}", cancellationToken: cancellationToken
+            chatId, $"{allLinks} \nЕсли вы хотите сгенерировать qr-code для вашей ссылки, " +
+                    $"вставьте соответствующую ссылку в строку и выберите команду 'Generate QR-Code'.", replyMarkup: GetButtonQr(), cancellationToken: cancellationToken
         );
+    }
+
+    private Task GetQrCode(long chatId, ITelegramBotClient client, Update update,
+        CancellationToken cancellationToken)
+    {
+        
+        var link = update.Message?.Text;
+        string url = $"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={link}";
+        
+        return client.SendPhotoAsync(
+            chatId, new InputFileUrl(url),caption: $"{link}" ,replyMarkup: GetButtonRestartBot(), cancellationToken: cancellationToken);
+        
+    }
+    
+    private Task BotRestart(long chatId, ITelegramBotClient client, Update update,
+        CancellationToken cancellationToken)
+    {
+        var userId = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId)?.UserId;
+        var user = db?.Users.FirstOrDefault(x => x.Id == userId);
+        
+
+        return client.SendTextMessageAsync(
+            chatId, $"Добрый день, {user.Name}. Добро пожаловать в сервис коротких ссылок! Выберите дальнейшую комманду:", replyMarkup: GetButtons(), cancellationToken: cancellationToken
+        );
+    }
+    
+    private IReplyMarkup? GetButtons()
+    {
+        return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
+        {
+            Keyboard = new List<List<KeyboardButton>>
+            {
+                new List<KeyboardButton>{ new KeyboardButton(Button1) },
+                new List<KeyboardButton>{ new KeyboardButton(Button2) }
+
+            }
+        };
+    }
+    
+    private IReplyMarkup? GetButtonQr()
+    {
+        return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
+        {
+            Keyboard = new List<List<KeyboardButton>>
+            {
+                new List<KeyboardButton>{ new KeyboardButton(Button3) },
+                new List<KeyboardButton>{ new KeyboardButton(Button4) },
+
+            }
+        };
+    }
+    
+    private IReplyMarkup? GetButtonRestartBot()
+    {
+        return new ReplyKeyboardMarkup(new List<List<KeyboardButton>>()) 
+        {
+            Keyboard = new List<List<KeyboardButton>>
+            {
+                new List<KeyboardButton>{ new KeyboardButton(Button4) },
+            }
+        };
+    }
+    private async Task SaveChatId(int userId, long chatId)
+    {
+        var getUser = db?.TgChatIdUsers.FirstOrDefault(x => x.ChatId == chatId);
+        if (getUser == null)
+        {
+            var newTgChatId = new TgChatId()
+            {
+                UserId = userId,
+                ChatId = chatId
+            };
+            db?.TgChatIdUsers.Add(newTgChatId);
+            await db.SaveChangesAsync();
+        }
     }
 
 }
