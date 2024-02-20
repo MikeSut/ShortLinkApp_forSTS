@@ -1,12 +1,20 @@
+using System.Drawing;
+using System.Drawing.Imaging;
+using Microsoft.AspNetCore.Http.HttpResults;
 using ShortLinks.Application;
 using ShortLinks.Domain.Entity;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
 using Microsoft.Extensions.Options;
-
+using QRCoder;
+using InputFile = Microsoft.AspNetCore.Components.Forms.InputFile;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using Image = SixLabors.ImageSharp.Image;
 
 
 namespace ShortLinks.Presentation.Api.Telegram;
@@ -64,12 +72,7 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
             
         }
 
-        // if (messageText.ToLower().Contains(_publicAddress.ToLower()))
-        // {
-        //     GetQrCode(messageText, client, update, cancellationToken)
-        // }
-            
-        return messageText switch {
+       return messageText switch {
             _
                 => HandleDefault(client, update, cancellationToken)
         };
@@ -164,14 +167,21 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger, ApplicationDb
     private Task GetQrCode(long chatId, ITelegramBotClient client, Update update,
         CancellationToken cancellationToken)
     {
-        
         var link = update.Message?.Text;
-        string url = $"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={link}";
+        QRCodeGenerator qrCode = new QRCodeGenerator();
+        QRCodeData data = qrCode.CreateQrCode(link, QRCodeGenerator.ECCLevel.Q);
+        PngByteQRCode qRCode = new PngByteQRCode(data);
+        byte[] qrCodeBytes = qRCode.GetGraphic(20);
+        var img = Image.Load(qrCodeBytes);
+        using MemoryStream ms = new MemoryStream();
+        img.SaveAsPng(ms);
         
+        ms.Position = 0;
         return client.SendPhotoAsync(
-            chatId, new InputFileUrl(url),caption: $"{link}" ,replyMarkup: GetButtonRestartBot(), cancellationToken: cancellationToken);
-        
+            chatId, new InputFileStream(ms), cancellationToken: cancellationToken);
     }
+    
+    
     
     private Task BotRestart(long chatId, ITelegramBotClient client, Update update,
         CancellationToken cancellationToken)
